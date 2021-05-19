@@ -1,4 +1,12 @@
-import java.util.Scanner;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Launcher
 {
@@ -32,6 +40,37 @@ public class Launcher
             {
                 int n = scan.nextInt();
                 System.out.println(fibo(n));
+                scan.nextLine();
+            }
+            else if (command.equals("freq"))
+            {
+                System.out.println("Enter file path:");
+                String path = scan.next();
+                Path p = Paths.get(path);
+                String test = new String();
+                try
+                {
+                    test = Files.readString(p);
+                }
+                catch (IOException e)
+                {
+                    System.out.println("Unreadable file: ");
+                    e.printStackTrace();
+                }
+                Stream<String> s = Arrays.stream(test.replaceAll("[^a-zA-Z]", " ")
+                        .toLowerCase()
+                        .split(" "))
+                        .filter(str -> !str.isBlank());
+
+                List<String> counted = s.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                        .entrySet().stream()
+                        .sorted(Map.Entry.<String, Long> comparingByValue(Comparator.reverseOrder())
+                                .thenComparing(Map.Entry.comparingByKey()))
+                        .limit(3)
+                        .map(Map.Entry::getKey)
+                        .collect(Collectors.toList());
+
+                System.out.println(counted.get(0) + " " + counted.get(1) + " " + counted.get(2));
                 scan.nextLine();
             }
             else
